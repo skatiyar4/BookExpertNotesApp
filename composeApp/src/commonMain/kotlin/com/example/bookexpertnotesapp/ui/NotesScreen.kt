@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -45,6 +47,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Preview
 internal fun NotesScreen(
     onNoteViewClick: (note: Note) -> Unit,
+    onNoteEditClick: (note: Note) -> Unit,
 ) {
     val notesViewModel: NotesViewModel = koinViewModel<NotesViewModel>()
     val notes by notesViewModel.notesFlow.collectAsStateWithLifecycle()
@@ -60,7 +63,8 @@ internal fun NotesScreen(
                     NoteItem(
                         note = note,
                         onDelete = { notesViewModel.deleteNote(note) },
-                        onClick = { onNoteViewClick.invoke(note)}
+                        onClick = { onNoteViewClick.invoke(note)},
+                        onEdit = { onNoteEditClick.invoke(note)}
                     )
                 }
             }
@@ -92,6 +96,7 @@ internal fun NoDataPlaceHolder(modifier: Modifier, placeHolderTxt: String) {
 @Composable
 internal fun NoteItem(
     note: Note,
+    onEdit: () -> Unit,
     onDelete: () -> Unit,
     onClick: () -> Unit
 ) {
@@ -114,9 +119,15 @@ internal fun NoteItem(
 
 
             }
+            IconButton(onClick = onEdit) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = stringResource(Res.string.delete_lbl)
+                )
+            }
             IconButton(onClick = onDelete) {
                 Icon(
-                    /*imageVector = Icons.Default.DeleteOutline*/painterResource(Res.drawable.baseline_delete_outline_24),
+                    painterResource(Res.drawable.baseline_delete_outline_24),
                     contentDescription = stringResource(Res.string.delete_lbl)
                 )
             }

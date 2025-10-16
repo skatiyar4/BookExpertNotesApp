@@ -48,9 +48,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun App() {
     val navController: NavHostController = rememberNavController()
     var isFloatingButtonShow by rememberSaveable { mutableStateOf(true) }
-    // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
-    // Get the name of the current screen
     val currentScreen = backStackEntry?.destination?.route
     MaterialTheme {
         Scaffold(
@@ -70,9 +68,6 @@ fun App() {
                         containerColor = MaterialTheme.colorScheme.primary,
                         shape = RoundedCornerShape(50)
                     ) {
-                        /* Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(
-                         Res.string.create_note_lbl))*/
-
                         Icon(
                             painter = painterResource(Res.drawable.outline_add_24),
                             contentDescription = stringResource(
@@ -106,27 +101,34 @@ fun App() {
                 }
                 composable(route = NoteScreen.Notes.route) {
                     isFloatingButtonShow = true
-                    NotesScreen { note ->
-                        val noteJson: String? = Json.encodeToString(note)
-                        navController.currentBackStackEntry?.savedStateHandle?.set("note", noteJson)
-                        navController.navigate(NoteScreen.ViewNote.route)
-                    }
-                }
-                composable(route = NoteScreen.ViewNote.route) { backStackEntry ->
-                    isFloatingButtonShow = false
-
-                    val noteJson: String? = navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.get<String>("note")
-                    noteJson?.let {
-                        val note: Note = Json.decodeFromString<Note>(noteJson)
-                        ViewNoteScreen(note) {
+                    navController.currentBackStackEntry?.savedStateHandle?.remove<String>("note")
+                    NotesScreen(
+                        onNoteEditClick = { note ->
+                            val noteJson: String? = Json.encodeToString(note)
                             navController.currentBackStackEntry?.savedStateHandle?.set(
                                 "note",
                                 noteJson
                             )
                             navController.navigate(NoteScreen.NoteEditor.route)
+                        },
+                        onNoteViewClick = { note ->
+                            val noteJson: String? = Json.encodeToString(note)
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                "note",
+                                noteJson
+                            )
+                            navController.navigate(NoteScreen.ViewNote.route)
                         }
+                    )
+                }
+                composable(route = NoteScreen.ViewNote.route) { backStackEntry ->
+                    isFloatingButtonShow = false
+                    val noteJson: String? = navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.get<String>("note")
+                    noteJson?.let {
+                        val note: Note = Json.decodeFromString<Note>(noteJson)
+                        ViewNoteScreen(note)
                     }
 
                 }
@@ -151,7 +153,6 @@ fun App() {
     }
 }
 
-//@Composable
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotesAppBar(

@@ -6,6 +6,7 @@
     <string name="pick_a_date">Pick a Date</string>
     <string name="picked_date">Picked Date: %1$s</string>
     <string name="create_note_lbl">Create Note</string>
+    <string name="edit_note_lbl">Edit Note</string>
     <string name="note_saved_msg">Note saved successfully</string>
     <string name="delete_lbl">Delete</string>
     <string name="no_notes_msg">No notes available</string>
@@ -14,5 +15,6 @@
     <string name="view_note_lbl">View Note</string>
     <string name="back_btn">Back Button</string>
     <string name="ok_lbl">Ok</string>
+    <string name="link_btn_msg">Link/Button Click Message</string>
 
 </resources>

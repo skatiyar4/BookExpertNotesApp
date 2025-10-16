@@ -1,7 +1,6 @@
 package com.example.bookexpertnotesapp.component
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,13 +10,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.interop.UIKitView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
-import io.ktor.client.request.invoke
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.readValue
+import platform.CoreGraphics.CGRectZero
+import platform.Foundation.NSData
 import platform.Foundation.NSDateFormatter
+import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSTimer
+import platform.Foundation.NSURL
+import platform.Foundation.dataWithContentsOfURL
+import platform.Foundation.writeToFile
+import platform.PDFKit.PDFDocument
+import platform.PDFKit.PDFView
+import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UIAlertAction
 import platform.UIKit.UIAlertActionStyleDefault
 import platform.UIKit.UIAlertController
@@ -26,25 +34,7 @@ import platform.UIKit.UIApplication
 import platform.UIKit.UIDatePicker
 import platform.UIKit.UIDatePickerMode
 import platform.UIKit.UIDatePickerStyle
-import kotlinx.cinterop.*
-import platform.CoreGraphics.CGRect
-import platform.CoreGraphics.CGRectZero
-import platform.Foundation.NSData
-import platform.Foundation.NSTemporaryDirectory
-import platform.Foundation.NSURL
-import platform.Foundation.dataWithContentsOfURL
-import platform.Foundation.writeToFile
-import platform.PDFKit.PDFDocument
-import platform.PDFKit.PDFView
-import platform.QuartzCore.CATransaction
-import platform.QuartzCore.kCATransactionDisableActions
-import platform.UIKit.NSLayoutConstraint
-import platform.UIKit.UIGraphicsPDFRenderer
 import platform.UIKit.UIView
-import platform.WebKit.WKNavigationAction
-import platform.WebKit.WKNavigationActionPolicy
-import platform.WebKit.WKNavigationDelegateProtocol
-import platform.WebKit.WKNavigationTypeLinkActivated
 import platform.WebKit.WKScriptMessage
 import platform.WebKit.WKScriptMessageHandlerProtocol
 import platform.WebKit.WKUserContentController
@@ -58,7 +48,7 @@ actual fun pickDate(onDatePicked: (String) -> Unit) {
     val datePicker = UIDatePicker().apply {
         datePickerMode = UIDatePickerMode.UIDatePickerModeDate
         preferredDatePickerStyle =
-            UIDatePickerStyle.UIDatePickerStyleWheels // Use the wheel-style picker
+            UIDatePickerStyle.UIDatePickerStyleWheels
         translatesAutoresizingMaskIntoConstraints = false
     }
 
@@ -91,7 +81,6 @@ actual fun pickDate(onDatePicked: (String) -> Unit) {
             onDatePicked(selectedDate)
         })
 
-    // Present the alert
     UIApplication.sharedApplication.keyWindow?.rootViewController?.presentViewController(
         alertController, animated = true, completion = null
     )
@@ -160,11 +149,11 @@ actual fun OpenPDFUrl(url: String) {
             val data = NSData.dataWithContentsOfURL(it)
             data?.let { downloadedData ->
                 val tempDir = NSTemporaryDirectory()
-                val localPath = tempDir + "/temp.pdf"
+                val localPath = "$tempDir/temp.pdf"
                 val localUrl = NSURL.fileURLWithPath(localPath)
                 downloadedData.writeToFile(localPath, true)
                 fileUrl = localUrl
-                println("Local URL : $localUrl")
+//                println("Local URL : $localUrl")
             }
         }
     }

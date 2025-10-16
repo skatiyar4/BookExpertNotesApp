@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import bookexpertnotesapp.composeapp.generated.resources.Res
 import bookexpertnotesapp.composeapp.generated.resources.content_lbl
 import bookexpertnotesapp.composeapp.generated.resources.create_note_lbl
+import bookexpertnotesapp.composeapp.generated.resources.edit_note_lbl
 import bookexpertnotesapp.composeapp.generated.resources.pick_a_date
 import bookexpertnotesapp.composeapp.generated.resources.picked_date
 import bookexpertnotesapp.composeapp.generated.resources.title_lbl
@@ -37,7 +38,7 @@ import kotlin.time.ExperimentalTime
 @Composable
 @Preview
 internal fun NoteEditorScreen(
-    noteEditorViewModel: NoteEditorViewModel =  koinViewModel<NoteEditorViewModel>(),
+    noteEditorViewModel: NoteEditorViewModel = koinViewModel<NoteEditorViewModel>(),
     existingNote: Note? = null,
     onNoteSavedSuccess: () -> Unit
 ) {
@@ -57,7 +58,7 @@ internal fun NoteEditorScreen(
                     "    window.webkit.messageHandlers.callback.postMessage(msg);\n" +
                     "  }\n" +
                     "}\n" +
-                    "</script>"+"" )
+                    "</script>" + "")
         )
     }
     var createdDate by remember {
@@ -66,7 +67,7 @@ internal fun NoteEditorScreen(
         )
     } //Current Date
     // Editing mode - if no existing note, start in editing mode for creating
-    var isEditing by remember { mutableStateOf(existingNote == null) }
+//    var isEditing by remember { mutableStateOf(existingNote == null) }
     var showDatePopup by remember { mutableStateOf(false) }
     val toastMessage by noteEditorViewModel.isShowToast
     //var selectedDate by remember { mutableStateOf("Select a date") }
@@ -74,17 +75,15 @@ internal fun NoteEditorScreen(
     Column(modifier = Modifier.padding(16.dp)) {
         TextField(
             value = title,
-            onValueChange = { title = it},
+            onValueChange = { title = it },
             label = { Text(stringResource(Res.string.title_lbl)) },
-            enabled = isEditing,
             modifier = Modifier.fillMaxWidth()
         )
 
         TextField(
             value = bodyHtml,
-            onValueChange = {bodyHtml = it },
+            onValueChange = { bodyHtml = it },
             label = { Text(stringResource(Res.string.content_lbl)) },
-            enabled = isEditing,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(150.dp)
@@ -107,19 +106,30 @@ internal fun NoteEditorScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            if (!isEditing) {
-                Button(onClick = { isEditing = true }) {
-                    Text("Edit Note")
-                }
-            } else {
-                Button(onClick = {
-                    noteEditorViewModel.saveNotes(Note(title = title, content = bodyHtml, createdDate = createdDate))
-                }) {
-                    Text(
-                        stringResource(Res.string.create_note_lbl)
+            Button(onClick = {
+                val note = existingNote?.let {
+                    Note(
+                        id = it.id,
+                        title = title,
+                        content = bodyHtml,
+                        createdDate = createdDate
                     )
+                }?: Note(
+                    title = title,
+                    content = bodyHtml,
+                    createdDate = createdDate
+                )
+                noteEditorViewModel.saveNotes(
+                    note, isEditNote = (existingNote!=null)
+                )
+            }) {
+                if (existingNote == null) {
+                    Text(stringResource(Res.string.create_note_lbl))
+                } else {
+                    Text(stringResource(Res.string.edit_note_lbl))
                 }
             }
+
         }
     }
 }
